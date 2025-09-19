@@ -1,33 +1,38 @@
 package com.example.car_rental_system.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import lombok.Data;
 
+@Data
 @Entity
 public class Car {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String make;
-    private String model;
-    private int year;
-    private double pricePerDay;
-    private boolean isAvailable;
 
-    // You can use IntelliJ to generate getters and setters:
-    // Right-click > Generate > Getter and Setter
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
-    public String getMake() { return make; }
-    public void setMake(String make) { this.make = make; }
-    public String getModel() { return model; }
-    public void setModel(String model) { this.model = model; }
-    public int getYear() { return year; }
-    public void setYear(int year) { this.year = year; }
-    public double getPricePerDay() { return pricePerDay; }
-    public void setPricePerDay(double pricePerDay) { this.pricePerDay = pricePerDay; }
-    public boolean isAvailable() { return isAvailable; }
-    public void setAvailable(boolean isAvailable) { this.isAvailable = isAvailable; }
+    @NotBlank(message = "Make cannot be blank")
+    private String make;
+
+    @NotBlank(message = "Model cannot be blank")
+    private String model;
+
+    @Min(value = 1900, message = "Year must be a valid year")
+    private int year;
+
+    @NotNull(message = "Price per day is required")
+    @Min(value = 0, message = "Price per day cannot be negative")
+    private double pricePerDay;
+
+    @NotBlank(message = "Availability status is required")
+    private String status;
+
+    public boolean isAvailable() {
+        return false;
+    }
+
+    public void setAvailable(boolean b) {
+    }
 }

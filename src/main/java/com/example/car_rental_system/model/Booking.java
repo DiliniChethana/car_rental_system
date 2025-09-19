@@ -1,8 +1,10 @@
-package com.example.car_rental_system.model;// src/main/java/com/example/carrentalsystem/model/Booking.java
+package com.example.car_rental_system.model;
+
 import jakarta.persistence.*;
+import jakarta.validation.constraints.FutureOrPresent;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import java.time.LocalDate;
-import java.time.temporal.Temporal;
 
 @Data
 @Entity
@@ -19,41 +21,15 @@ public class Booking {
     @JoinColumn(name = "user_id")
     private User user;
 
+    @NotNull(message = "Start date is required")
+    @FutureOrPresent(message = "Start date must be in the present or future")
     private LocalDate startDate;
+
+    @NotNull(message = "End date is required")
+    @FutureOrPresent(message = "End date must be in the present or future")
     private LocalDate endDate;
+
     private String status;
+
     private double totalPrice;
-
-
-    public Car getCar() {
-        return null;
-    }
-
-    public Car getUser() {
-        return null;
-    }
-
-    public void setCar(Car car) {
-    }
-
-    public void setUser(User user) {
-    }
-
-    public Temporal getStartDate() {
-        return null;
-    }
-
-    public Temporal getEndDate() {
-        return null;
-    }
-
-    public void setTotalPrice(double v) {
-    }
-
-    public void setStatus(String pending) {
-    }
-
-    public Object getStatus() {
-        return null;
-    }
 }
