@@ -1,8 +1,9 @@
-package com.example.car_rental_system.model;// src/main/java/com/example/carrentalsystem/model/User.java
-import jakarta.persistence.*;
-import lombok.Data; // Consider using Lombok for less boilerplate code
+package com.example.car_rental_system.model;
 
-@Data // Lombok annotation for getters, setters, toString, etc.
+import jakarta.persistence.*;
+import lombok.Data;
+
+@Data
 @Entity
 @Table(name = "users")
 public class User {
@@ -16,5 +17,5 @@ public class User {
     @Column(nullable = false)
     private String password;
 
-    private String role; // e.g., "ROLE_USER", "ROLE_ADMIN"
+    private String role; // e.g., ROLE_USER
 }

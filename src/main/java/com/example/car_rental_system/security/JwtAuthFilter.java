@@ -27,6 +27,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
+
         String token = getJwtFromRequest(request);
 
         if (StringUtils.hasText(token) && tokenProvider.validateToken(token)) {
@@ -35,8 +36,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
             UsernamePasswordAuthenticationToken authenticationToken =
                     new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-
             authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+
             SecurityContextHolder.getContext().setAuthentication(authenticationToken);
         }
 
@@ -51,10 +52,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         return null;
     }
 
-    // 🚀 Skip filtering for public endpoints like /api/auth/**
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
-        String path = request.getRequestURI();
-        return path.startsWith("/api/auth/");
+        return request.getRequestURI().startsWith("/api/auth/");
     }
 }

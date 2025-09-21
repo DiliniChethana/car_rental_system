@@ -1,45 +1,62 @@
 package com.example.car_rental_system.security;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
+import javax.crypto.SecretKey;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
 @Component
 public class JwtTokenProvider {
 
-    private final String jwtSecret = "yourSuperSecretKeyThatIsAtLeast256BitsLong";
-    private final int jwtExpirationMs = 86400000; // 24 hours
+    @Value("${jwt.secret}")
+    private String jwtSecret;
+
+    @Value("${jwt.expiration-ms}")
+    private long jwtExpirationMs;
+
+    private SecretKey getSigningKey() {
+        return Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
+    }
 
     public String generateToken(Authentication authentication) {
         String username = authentication.getName();
-        Date currentDate = new Date();
-        Date expiryDate = new Date(currentDate.getTime() + jwtExpirationMs);
+        Date now = new Date();
+        Date expiry = new Date(now.getTime() + jwtExpirationMs);
 
         return Jwts.builder()
                 .setSubject(username)
-                .setIssuedAt(currentDate)
-                .setExpiration(expiryDate)
-                .signWith(SignatureAlgorithm.HS512, jwtSecret)
+                .setIssuedAt(now)
+                .setExpiration(expiry)
+                .signWith(getSigningKey(), SignatureAlgorithm.HS512)
                 .compact();
     }
 
+    private Claims parseClaims(String token) {
+        JwtParser parser = Jwts.parserBuilder()
+                .setSigningKey(getSigningKey())
+                .build();
+        return parser.parseClaimsJws(token).getBody();
+    }
+
     public String getUsername(String token) {
-        Module claims = Jwts.parser()
-                .setSigningKey(jwtSecret)
-                .getClass()
-                .getModule();
-        return claims.getName();
+        return parseClaims(token).getSubject();
     }
 
     public boolean validateToken(String token) {
         try {
-            Jwts.parser().setSigningKey(jwtSecret).getClass();
+            parseClaims(token);
             return true;
-        } catch (Exception ex) {
+        } catch (JwtException | IllegalArgumentException ex) {
+            System.out.println("Invalid JWT: " + ex.getMessage());
             return false;
         }
     }
