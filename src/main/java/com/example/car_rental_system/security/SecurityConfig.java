@@ -68,8 +68,11 @@ public class SecurityConfig {
                 .exceptionHandling(exception -> exception.authenticationEntryPoint(authEntryPoint))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/cars").permitAll()
+                        .requestMatchers("/api/auth/**").permitAll()  // Auth endpoints open
+                        .requestMatchers(HttpMethod.GET, "/api/cars/**").permitAll()  // Anyone can view cars
+                        .requestMatchers(HttpMethod.POST, "/api/cars/**").permitAll() // Allow POST for testing
+                        .requestMatchers(HttpMethod.PUT, "/api/cars/**").permitAll()  // Allow PUT for testing
+                        .requestMatchers(HttpMethod.DELETE, "/api/cars/**").permitAll() // Allow DELETE for testing
                         .anyRequest().authenticated()
                 )
                 .authenticationProvider(authenticationProvider());

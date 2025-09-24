@@ -8,11 +8,13 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.stream.Collectors;
 
 @Component
 public class JwtTokenProvider {
@@ -27,13 +29,22 @@ public class JwtTokenProvider {
         return Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
     }
 
+    // Include roles in JWT
     public String generateToken(Authentication authentication) {
-        String username = authentication.getName();
+        org.springframework.security.core.userdetails.User userPrincipal =
+                (org.springframework.security.core.userdetails.User) authentication.getPrincipal();
+
+        String roles = userPrincipal.getAuthorities()
+                .stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.joining(","));
+
         Date now = new Date();
         Date expiry = new Date(now.getTime() + jwtExpirationMs);
 
         return Jwts.builder()
-                .setSubject(username)
+                .setSubject(userPrincipal.getUsername())
+                .claim("roles", roles)   // add roles claim
                 .setIssuedAt(now)
                 .setExpiration(expiry)
                 .signWith(getSigningKey(), SignatureAlgorithm.HS512)
@@ -49,6 +60,10 @@ public class JwtTokenProvider {
 
     public String getUsername(String token) {
         return parseClaims(token).getSubject();
+    }
+
+    public String getRoles(String token) {
+        return (String) parseClaims(token).get("roles");
     }
 
     public boolean validateToken(String token) {

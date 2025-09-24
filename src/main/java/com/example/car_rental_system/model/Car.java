@@ -8,6 +8,7 @@ import lombok.Data;
 
 @Data
 @Entity
+@Table(name = "car")
 public class Car {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,13 +27,6 @@ public class Car {
     @Min(value = 0, message = "Price per day cannot be negative")
     private double pricePerDay;
 
-    @NotBlank(message = "Availability status is required")
-    private String status;
-
-    public boolean isAvailable() {
-        return false;
-    }
-
-    public void setAvailable(boolean b) {
-    }
+    @Column(nullable = false)
+    private boolean available;
 }
