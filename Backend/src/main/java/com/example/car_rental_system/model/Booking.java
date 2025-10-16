@@ -1,8 +1,8 @@
 package com.example.car_rental_system.model;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 import java.time.LocalDate;
 
@@ -15,19 +15,23 @@ public class Booking {
 
     @ManyToOne
     @JoinColumn(name = "car_id")
+    @NotNull(message = "Car is required")
     private Car car;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
 
-    @NotNull(message = "Start date is required")
-    @FutureOrPresent(message = "Start date must be in the present or future")
-    private LocalDate startDate;
+    @NotNull(message = "Pickup date is required")
+    private LocalDate pickupDate;
 
-    @NotNull(message = "End date is required")
-    @FutureOrPresent(message = "End date must be in the present or future")
-    private LocalDate endDate;
+    @NotBlank(message = "Pickup location is required")
+    private String pickupLocation;
+
+    @NotBlank(message = "Pickup time is required")
+    private String pickupTime;
+
+    private int passengers;
 
     private String status;
 

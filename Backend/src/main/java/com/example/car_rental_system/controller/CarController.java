@@ -18,6 +18,31 @@ public class CarController {
     public List<Car> getAllCars() {
         return carService.getAllCars();
     }
+    
+    @GetMapping("/search")
+    public List<Car> searchCars(
+            @RequestParam(required = false) String location,
+            @RequestParam(required = false) String carType,
+            @RequestParam(required = false) String pickupDate,
+            @RequestParam(required = false) String returnDate,
+            @RequestParam(required = false) Double minPrice,
+            @RequestParam(required = false) Double maxPrice,
+            @RequestParam(required = false) Integer seats,
+            @RequestParam(required = false) String transmission,
+            @RequestParam(required = false) String sortBy) {
+        return carService.searchCars(location, carType, pickupDate, returnDate, 
+                                     minPrice, maxPrice, seats, transmission, sortBy);
+    }
+    
+    @GetMapping("/featured")
+    public List<Car> getFeaturedCars() {
+        return carService.getFeaturedCars();
+    }
+    
+    @GetMapping("/available")
+    public List<Car> getAvailableCars() {
+        return carService.getAvailableCars();
+    }
 
     @GetMapping("/{id}")
     public Car getCarById(@PathVariable Long id) {

@@ -17,5 +17,13 @@ public class User {
     @Column(nullable = false)
     private String password;
 
-    private String role; // e.g., ROLE_USER
+    private String role; // e.g., ROLE_USER, ROLE_ADMIN
+    
+    private String email;
+    
+    private String firstName;
+    
+    private String lastName;
+    
+    private String phone;
 }

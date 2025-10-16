@@ -2,13 +2,10 @@ package com.example.car_rental_system.service;
 
 import com.example.car_rental_system.model.Booking;
 import com.example.car_rental_system.model.Car;
-import com.example.car_rental_system.model.User;
 import com.example.car_rental_system.repository.BookingRepository;
 import com.example.car_rental_system.repository.CarRepository;
-import com.example.car_rental_system.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @Service
@@ -20,34 +17,22 @@ public class BookingService {
     @Autowired
     private CarRepository carRepository;
 
-    @Autowired
-    private UserRepository userRepository;
-
     public Booking createBooking(Booking booking) {
-        // Find the car and user by their IDs
-        Car car = carRepository.findById(booking.getCar().getId()).orElse(null);
-        User user = userRepository.findById(booking.getUser().getId()).orElse(null);
-
-        // Check if car and user exist and if the car is available
-        if (car == null || user == null || !car.isAvailable()) {
-            // In a real application, you would throw a specific exception here
-            return null;
+        Car car = carRepository.findById(booking.getCar().getId())
+            .orElseThrow(() -> new RuntimeException("Car not found"));
+        
+        // User is set by the controller, so we just need to validate it exists
+        if (booking.getUser() == null) {
+            throw new RuntimeException("User not found");
         }
 
-        // Set the car and user objects on the booking
         booking.setCar(car);
-        booking.setUser(user);
+        
+        // Set default status if not provided
+        if (booking.getStatus() == null || booking.getStatus().isEmpty()) {
+            booking.setStatus("PENDING");
+        }
 
-        // Calculate total price based on the number of days
-        long days = ChronoUnit.DAYS.between(booking.getStartDate(), booking.getEndDate());
-        booking.setTotalPrice(days * car.getPricePerDay());
-        booking.setStatus("PENDING");
-
-        // Make the car unavailable and save it
-        car.setAvailable(false);
-        carRepository.save(car);
-
-        // Save the booking
         return bookingRepository.save(booking);
     }
 

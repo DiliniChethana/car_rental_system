@@ -54,7 +54,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<Map<String, String>> loginUser(@RequestBody User loginRequest) {
+    public ResponseEntity<Map<String, Object>> loginUser(@RequestBody User loginRequest) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         loginRequest.getUsername(),
@@ -63,6 +63,23 @@ public class AuthController {
         );
 
         String token = tokenProvider.generateToken(authentication);
-        return ResponseEntity.ok(Collections.singletonMap("token", token));
+        
+        // Get user details
+        User user = userRepository.findByUsername(loginRequest.getUsername()).orElse(null);
+        
+        Map<String, Object> response = new java.util.HashMap<>();
+        response.put("token", token);
+        if (user != null) {
+            Map<String, Object> userDetails = new java.util.HashMap<>();
+            userDetails.put("username", user.getUsername());
+            userDetails.put("email", user.getEmail());
+            userDetails.put("firstName", user.getFirstName());
+            userDetails.put("lastName", user.getLastName());
+            userDetails.put("phone", user.getPhone());
+            userDetails.put("role", user.getRole());
+            response.put("user", userDetails);
+        }
+        
+        return ResponseEntity.ok(response);
     }
 }
